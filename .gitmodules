@@ -1,0 +1,3 @@
+[submodule "iban.data"]
+	path = iban.data
+	url = https://github.com/homebeaver/bankdata.git
