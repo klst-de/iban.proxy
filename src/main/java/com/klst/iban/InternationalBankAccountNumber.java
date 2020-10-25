@@ -17,7 +17,7 @@ public class InternationalBankAccountNumber {
 	
 	String iban = null;
 	boolean isValid = false;
-	String format = null;
+//	String format = null;
 	
 	public InternationalBankAccountNumber(String iban) {
 		if(iban!=null) {
@@ -49,8 +49,8 @@ public class InternationalBankAccountNumber {
     	if(!isValid) return null;
     	BankData bankData = getBankData();
     	String bankDataPart = bankData.getBankIdentifier();
-    	Bban bData = Bban.BBAN.get(getCountryCode());
-    	return bankDataPart + bData.getGroupBranchCode(iban);
+    	Object branchCode = bankData.getBranchCode();
+    	return branchCode==null ? bankDataPart : bankDataPart + branchCode.toString();
     }
 
     public BankData getBankData() {
@@ -60,7 +60,7 @@ public class InternationalBankAccountNumber {
 			return null;
 		}
 		Bban bData = Bban.BBAN.get(getCountryCode()); // liefert eine Instanz mit Methode getBankData
-		format = bData.format;
+//		format = bData.format;
 //		LOG.info(bData.getBankData(iban).toString());
 		return bData.getBankData(iban);
     }

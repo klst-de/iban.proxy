@@ -50,7 +50,7 @@ public class IBANTest {
         assertEquals("BNBG96611020345678", iban.getBbanPart());
         assertEquals("BNBG", iban.getBankData().getBankIdentifier());
         assertEquals(0, iban.getBankData().getBankCode());
-        assertEquals(9661, iban.getBankData().getBranchCode());
+        assertEquals("9661", iban.getBankData().getBranchCode());
         assertEquals("BNBG9661", iban.getBankDataPart());
         
         iban = new InternationalBankAccountNumber("AD1200012030200359100100 "); // trimmed ending spaces
@@ -59,7 +59,7 @@ public class IBANTest {
         assertEquals("00012030200359100100", iban.getBbanPart());
         assertEquals("0001", iban.getBankData().getBankIdentifier());
         assertEquals(1, iban.getBankData().getBankCode());
-        assertEquals(2030, iban.getBankData().getBranchCode());
+        assertEquals("2030", iban.getBankData().getBranchCode());
         assertEquals("00012030", iban.getBankDataPart());
         
         iban = new InternationalBankAccountNumber("IT60X0542811101000000123456");
@@ -68,7 +68,7 @@ public class IBANTest {
         assertEquals("X0542811101000000123456", iban.getBbanPart());
         assertEquals("05428", iban.getBankData().getBankIdentifier());
         assertEquals(5428, iban.getBankData().getBankCode());
-        assertEquals(11101, iban.getBankData().getBranchCode());
+        assertEquals("11101", iban.getBankData().getBranchCode());
         assertEquals("0542811101", iban.getBankDataPart());
         
         
@@ -78,7 +78,7 @@ public class IBANTest {
         assertEquals("01101250000000012300695", iban.getBbanPart());
         assertEquals("011", iban.getBankData().getBankIdentifier());
         assertEquals(11, iban.getBankData().getBankCode());
-        assertEquals(125, iban.getBankData().getBranchCode());
+        assertEquals("0125", iban.getBankData().getBranchCode());
         assertEquals("0110125", iban.getBankDataPart());
         
    }
