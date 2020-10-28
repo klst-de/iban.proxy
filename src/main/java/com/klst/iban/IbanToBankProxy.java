@@ -123,9 +123,6 @@ public class IbanToBankProxy implements IbanBankData {
 	        	
 	        }
 			LOG.info(bankIdentifier + "+" + branchCode + " in countryBanks suchen ...");
-			// key aka id
-			// AT:Long.parseLong(bankDataPart, 10);
-			// BG:Long.parseLong(branchCode, 10); da bankBankIdentifier alpha ist, Bsp: UNCR9660 TODO
 			Long key = null;
 			try {
 				Long bankId = BankId.getBankId(countryCode, bankIdentifier, branchCode);
@@ -139,7 +136,6 @@ public class IbanToBankProxy implements IbanBankData {
 //			Long key = Long.getLong(bankDataPart);
 			JSONObject entry = countryBanks.get(key);
 			LOG.info(""+entry);
-			// TODO bei AD immer BranchCode:0000
 			if(entry==null) {
 				// in proxy nix gefunden
 				if(ibanToBankData==null) {
@@ -149,11 +145,17 @@ public class IbanToBankProxy implements IbanBankData {
 					return ibanToBankData.getBankData(iban);
 				}			
 			}
-			return parseBankDataObject(entry);
+			BankData bankData = parseBankDataObject(entry, bankIdentifier);
+			if(BankId.BANKCODE_WITH_ZERO_BRANCHCODE.equals(BankId.countryToFunc.get(countryCode))) {
+				// bei AD immer BranchCode:0000, korrekten BranchCode setzen:
+				bankData.setBranchCode(Long.valueOf(branchCode.toString()));
+				//entry.put(IbanToBankData.BANK_CODE, Long.valueOf(branchCode.toString()));
+			}
+			return bankData;
 			
 	}
 	
-	BankData parseBankDataObject(JSONObject bank_data) {
+	BankData parseBankDataObject(JSONObject bank_data, String bankIdentifier) {
 		BankData bankData = new BankData();
 		// mandatory props:
 		bankData.setBic((String)bank_data.get(Bank_Data.SWIFT_CODE)); // in proxy data I use SWIFT_CODE instead of BIC
@@ -163,7 +165,7 @@ public class IbanToBankProxy implements IbanBankData {
 		Object value = bank_data.get(IbanToBankData.BANK_CODE);
         try {
         	int bc = Integer.parseInt(value.toString());
-        	bankData.setBankCode(bc);
+        	bankData.setBankIdentifier(bankIdentifier);
         } catch (NumberFormatException e) {
         	LOG.fine(IbanToBankData.BANK_CODE+" "+value + " is not numeric.");
         	bankData.setBankIdentifier(value.toString());

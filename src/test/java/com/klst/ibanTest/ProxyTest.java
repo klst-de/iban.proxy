@@ -18,6 +18,7 @@ import org.junit.Test;
 
 import com.klst.iban.BankId;
 import com.klst.iban.IbanToBankProxy;
+import com.klst.iban.InternationalBankAccountNumber;
 import com.klst.iban.Result.BankData;
 
 public class ProxyTest {
@@ -86,6 +87,8 @@ public class ProxyTest {
 //    	LOG.info(bankData.toString());
 //    	assertEquals("UNCR", bankData.getBankIdentifier());
 //INFORMATION: [CountryIso:null, Bic:UNCRBGSFXXX, BankCode:UNCR, BranchCode:9660, Branch:"", Name:"UNICREDIT BULBANK AD", Address:"7 SVETA NEDELYA SQUARE", BankSupports:9, Zip:"1000", City:" SOFIA"]
+//INFORMATION: [ Fehler:         Bic:UNCRBGSFXXX, BankCode:9660, BranchCode:null,            Name:"UNICREDIT BULBANK AD", Address:"7 SVETA NEDELYA SQUARE", BankSupports:9, Zip:"1000", City:" SOFIA"] 
+//INFORMATION: [ korrigiert:     Bic:UNCRBGSFXXX, BankCode:UNCR, BranchCode:9660,            Name:"UNICREDIT BULBANK AD", Address:"7 SVETA NEDELYA SQUARE", BankSupports:9, Zip:"1000", City:" SOFIA"] 
 //
     	
 //    	bankData = proxy.getBankData("LB73005600000000010620130001"); //VALID_LB_IBAN
@@ -137,14 +140,42 @@ public class ProxyTest {
 
     }
     
+//    @Test
+    public void be() {
+    	IbanToBankProxy proxy = new IbanToBankProxy(API_KEY);
+    	String VALID_IBAN = "BE88000000004141";
+    	InternationalBankAccountNumber iban = new InternationalBankAccountNumber(VALID_IBAN);
+    	BankData bankData = proxy.getBankData(VALID_IBAN);
+    	assertNotNull(bankData);
+    	LOG.info("BE bankData:"+bankData);
+// ohne proxy Daten:
+//INFORMATION: [Bic:BPOTBEB1XXX, BankCode:000, BranchCode:, Name:"BPOST BANK", Address:"Markiesstraat, 1 bus 2 1000, BRABANT", BankSupports:7, Zip:"", City:"BRUSSELS"] 
+    	assertEquals(0, bankData.getBankCode());
+    	// in den proxy daten ist "bank_code":0 numerisch, in iban.com alpha: "bank_code":"000"
+    	assertEquals("000", bankData.getBankIdentifier());
+    	LOG.info(iban.getBankData().toString());
+    	assertEquals("000", iban.getBankData().getBankIdentifier());
+    	assertEquals(iban.getBankData().getBankCode(), bankData.getBankCode());
+    	assertEquals(0, bankData.getBankCode());
+    }
+    
     @Test
     public void noApiKey() {
     	IbanToBankProxy proxy = new IbanToBankProxy();
     	
     	BankData bankData = proxy.getBankData(VALID_AD_IBAN);
     	assertNotNull(bankData);
+    	assertEquals("0004", bankData.getBankIdentifier());
+    	assertEquals(4, bankData.getBankCode());
+    	assertEquals(19L, bankData.getBranchCode()); // getBranchCode liefert Long
     	assertEquals(1, bankData.getBankSupports());
-    	
+
+    	bankData = proxy.getBankData(VALID_BG_IBAN);
+    	assertNotNull(bankData);
+    	assertEquals("UNCR", bankData.getBankIdentifier());
+    	assertEquals(9660L, bankData.getBranchCode()); // getBranchCode liefert Long
+    	assertEquals(9, bankData.getBankSupports());
+
 //    	BankData bankData = proxy.getBankData("AT572011140014400144");
 //    	assertNotNull(bankData);
 //    	LOG.info(bankData.toString());
