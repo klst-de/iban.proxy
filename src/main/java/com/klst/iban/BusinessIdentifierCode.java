@@ -50,7 +50,7 @@ public class BusinessIdentifierCode {
 
 	String bic;
 	
-	protected BusinessIdentifierCode(String bic) {
+	public BusinessIdentifierCode(String bic) {
 		this.bic = bic;
 	}
 	

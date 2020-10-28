@@ -17,12 +17,9 @@ import org.junit.jupiter.api.Test;
 import com.klst.iban.BusinessIdentifierCode;
 
 public class BICTest {
-//class BICTest extends BusinessIdentifierCode {
 
 	private static Logger LOG;
 	private static final LogManager logManager = LogManager.getLogManager(); // Singleton
-	
-//	private static BICTest BIC;
 	
 	static {
     	URL url = BICTest.class.getClassLoader().getResource("testLogging.properties");
@@ -38,17 +35,17 @@ public class BICTest {
 	
     @BeforeClass
 	public static void staticSetup() {
-		
-//    	BIC = new BICTest("ACABAZ22");
-		LOG.info("staticSetup fertig.");
+		LOG.info("staticSetup fertig."); // nicht angezeigt in eclipse ?
     }
 
-//	BICTest(String bic) {
-//		super(bic);
-//	}
-
+	@Test
+	public void validBicTest() {
+		BusinessIdentifierCode bic = new BusinessIdentifierCode("ACABAZ22");
+		assertEquals(true, bic.isValid());
+	}
+	
     @Test
-    public void testIllegalArgumentException() {
+    public void testIllegalArgumentExceptionInInstitutionCode() {
         Throwable exception = assertThrows(IllegalArgumentException.class, () -> BusinessIdentifierCode.bankCodeToId(null));
         assertEquals("bankCode is null.", exception.getMessage());
         
