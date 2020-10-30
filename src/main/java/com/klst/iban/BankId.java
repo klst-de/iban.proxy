@@ -94,12 +94,44 @@ public class BankId {
 	static Map<Character, BiFunction<String, Object, Long>> idFunc = new HashMap<>();
 
     static {
+    	// sepa countries
     	countryToFunc.put("AD", BANKCODE_WITH_ZERO_BRANCHCODE);
     	countryToFunc.put("AT", NUMERIC_BANKCODE);
     	countryToFunc.put("BE", NUMERIC_BANKCODE);
     	countryToFunc.put("BG", SORTCODE_LIKE);
+    	countryToFunc.put("CH", NUMERIC_BANKCODE);
+    	countryToFunc.put("CY", BANKCODE_AND_BRANCHCODE_NUMERIC);
+    	countryToFunc.put("CZ", NUMERIC_BANKCODE);
+    	countryToFunc.put("DE", NUMERIC_BANKCODE);
+    	countryToFunc.put("DK", NUMERIC_BANKCODE);
+    	countryToFunc.put("EE", NUMERIC_BANKCODE);
+    	countryToFunc.put("ES", BANKCODE_AND_BRANCHCODE_NUMERIC);
+    	countryToFunc.put("FI", NUMERIC_BANKCODE);
+    	countryToFunc.put("FR", BANKCODE_AND_BRANCHCODE_NUMERIC);
+    	countryToFunc.put("GB", SORTCODE_LIKE);
+    	countryToFunc.put("GI", ALPHA_BANKCODE);
     	countryToFunc.put("GR", BANKCODE_AND_BRANCHCODE_NUMERIC);
+    	countryToFunc.put("HR", NUMERIC_BANKCODE);
+    	countryToFunc.put("HU", BANKCODE_AND_BRANCHCODE_NUMERIC);
+    	countryToFunc.put("IE", SORTCODE_LIKE);
+    	countryToFunc.put("IS", NUMERIC_BANKCODE);
+    	countryToFunc.put("IT", BANKCODE_AND_BRANCHCODE_NUMERIC);
+    	countryToFunc.put("LI", NUMERIC_BANKCODE);
+    	countryToFunc.put("LT", NUMERIC_BANKCODE);
+    	countryToFunc.put("LU", NUMERIC_BANKCODE);
+    	countryToFunc.put("LV", ALPHA_BANKCODE);
+    	countryToFunc.put("MC", BANKCODE_AND_BRANCHCODE_NUMERIC);
+    	countryToFunc.put("MT", SORTCODE_LIKE); // 4!a5!n
     	countryToFunc.put("NL", ALPHA_BANKCODE);
+    	countryToFunc.put("NO", NUMERIC_BANKCODE);
+    	countryToFunc.put("PL", NUMERIC_BANKCODE);
+    	countryToFunc.put("PT", BANKCODE_AND_BRANCHCODE_NUMERIC);
+    	countryToFunc.put("RO", ALPHA_BANKCODE);
+    	countryToFunc.put("SE", NUMERIC_BANKCODE);
+    	countryToFunc.put("SI", NUMERIC_BANKCODE);
+    	countryToFunc.put("SK", NUMERIC_BANKCODE);
+    	countryToFunc.put("SM", BANKCODE_AND_BRANCHCODE_NUMERIC);
+    	countryToFunc.put("VA", NUMERIC_BANKCODE);
     	
     	idFunc.put(ALPHA_BANKCODE,                  (bankC, branchC) -> a(bankC, branchC));
     	idFunc.put(BANKCODE_AND_BRANCHCODE_NUMERIC, (bankC, branchC) -> b(bankC, branchC));
