@@ -1,13 +1,5 @@
 package com.klst.iban;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.net.MalformedURLException;
-import java.net.URL;
 import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.List;
@@ -20,6 +12,8 @@ import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 
 import com.klst.iban.Result.BankData;
+import com.klst.iban.datastore.FileProxy;
+import com.klst.iban.datastore.LocalFileProxy;
 
 public class IbanToBankProxy implements IbanBankData {
 
@@ -80,27 +74,27 @@ public class IbanToBankProxy implements IbanBankData {
 			}
 		}
 		
-	        JSONParser jsonParser = new JSONParser();
-	        Object o = null;
-			try {
-				o = jsonParser.parse(jsonString);
-			} catch (ParseException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			} // throws ParseException
-	        JSONObject jo = (JSONObject) o;
-	        Object country_code = jo.get("country_code");
-	        LOG.info("country_code:"+(String)country_code); 
-	        Object isSEPAcountry = jo.get("isSEPAcountry");
-	        LOG.info("isSEPAcountry:"+(Boolean)isSEPAcountry); 
-	        Object ISO_3166_1 = jo.get("ISO_3166_1");
-	        if(ISO_3166_1 instanceof JSONObject) {
-	        	JSONObject jISO_3166_1 = (JSONObject)ISO_3166_1;
-		        LOG.info("ISO_3166_1.name:"+(String)jISO_3166_1.get("name")
-		        	+ ", name_fr:"+(String)jISO_3166_1.get("name_fr")
-		        	); 
-	        }
-	        Object list = jo.get("list");
+        JSONParser jsonParser = new JSONParser();
+        Object o = null;
+		try {
+			o = jsonParser.parse(jsonString);
+		} catch (ParseException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} // throws ParseException
+        JSONObject jo = (JSONObject) o;
+        Object country_code = jo.get("country_code");
+        LOG.info("country_code:"+(String)country_code); 
+        Object isSEPAcountry = jo.get("isSEPAcountry");
+        LOG.info("isSEPAcountry:"+(Boolean)isSEPAcountry); 
+        Object ISO_3166_1 = jo.get("ISO_3166_1");
+        if(ISO_3166_1 instanceof JSONObject) {
+        	JSONObject jISO_3166_1 = (JSONObject)ISO_3166_1;
+	        LOG.info("ISO_3166_1.name:"+(String)jISO_3166_1.get("name")
+	        	+ ", name_fr:"+(String)jISO_3166_1.get("name_fr")
+	        	); 
+        }
+        Object list = jo.get("list");
 	        if(list instanceof JSONArray) {
 	        	List<JSONObject> array = (JSONArray)list;
 	        	LOG.info("JSONArray.size="+array.size());
@@ -146,7 +140,8 @@ public class IbanToBankProxy implements IbanBankData {
 				}			
 			}
 			BankData bankData = parseBankDataObject(entry, bankIdentifier);
-			if(BankId.BANKCODE_WITH_ZERO_BRANCHCODE.equals(BankId.countryToFunc.get(countryCode))) {
+			BankId bankId = BankId.getInstance();
+			if(BankId.BANKCODE_WITH_ZERO_BRANCHCODE.equals(bankId.countryToFunc.get(countryCode))) {
 				// bei AD immer BranchCode:0000, korrekten BranchCode setzen:
 				bankData.setBranchCode(Long.valueOf(branchCode.toString()));
 				//entry.put(IbanToBankData.BANK_CODE, Long.valueOf(branchCode.toString()));
