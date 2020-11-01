@@ -1,9 +1,16 @@
 package com.klst.iban;
 
 import java.util.HashMap;
+import java.util.Hashtable;
+import java.util.List;
 import java.util.Map;
 import java.util.function.BiFunction;
 import java.util.logging.Logger;
+
+import com.github.miachm.sods.Range;
+import com.github.miachm.sods.Sheet;
+import com.klst.iban.datastore.LocalFileProxy;
+import com.klst.ods.Ods;
 
 /*
 
@@ -25,7 +32,8 @@ public class BankId {
 	private static BankId instance = null; // SINGLETON
 
 	Map<String, Character> countryToFunc = new HashMap<>();
-
+	Map<String, Integer> deBLZtoID = null;
+	
 	private BankId() {
     	// sepa countries
     	countryToFunc.put("AD", BANKCODE_WITH_ZERO_BRANCHCODE);
@@ -35,7 +43,7 @@ public class BankId {
     	countryToFunc.put("CH", NUMERIC_BANKCODE);
     	countryToFunc.put("CY", BANKCODE_AND_BRANCHCODE_NUMERIC);
     	countryToFunc.put("CZ", NUMERIC_BANKCODE);
-    	countryToFunc.put("DE", NUMERIC_BANKCODE);
+    	countryToFunc.put("DE", NUMERIC_BANKCODE_WITH_MAP);
     	countryToFunc.put("DK", NUMERIC_BANKCODE);
     	countryToFunc.put("EE", NUMERIC_BANKCODE);
     	countryToFunc.put("ES", BANKCODE_AND_BRANCHCODE_NUMERIC);
@@ -118,6 +126,96 @@ public class BankId {
     	return Long.parseLong(bankCode, 10);
     }
     
+    static final Character NUMERIC_BANKCODE_WITH_MAP = 'm'; // example: DE89 37040044  0532013000
+    static Long m(String bankCode, Object ignored) {
+    	BankId bankId = getInstance();
+    	Integer id = bankId.getDeBLZtoID().get(bankCode);
+    	return id==null ? null : (long) id;
+    }
+    
+    public Map<String, Integer> getDeBLZtoID() {
+    	if(deBLZtoID==null) {
+    		loadDEmap();
+    	}
+    	return deBLZtoID;
+    }
+    static final String DE_ODS_RESOURCE = LocalFileProxy.RESOURCE_DATA_PATH + "doc/DE/blzToId.ods";
+    // "routingno";"count";"id";"updated";"swiftcode";"name"
+	static final int COL_BLZ                     =  0;  // aka sortCode aka bankCode
+	static final int COL_COUNTSTAR               =  1;
+	static final int COL_ID                      =  2;
+	static final int COL_UPDATED                 =  3;
+	static final int COL_BIC                     =  4;
+	static final int COL_Bank                    =  5;  // name
+	static final int NUMCOLUMNS                  =  6;
+
+    private void loadDEmap() {
+    	deBLZtoID = new HashMap<>();
+//    	deBLZtoID.put("37020500", 531);
+//    	37020500	1	531	2020-09-07 00:00:00	BFSWDE33XXX	Bank für Sozialwirtschaft , Köln
+
+        List<Sheet> sheets = Ods.getSheets(DE_ODS_RESOURCE);
+        
+    	int numColumns = NUMCOLUMNS;
+
+        Map<String,Integer> nonEmptySheets = new Hashtable<String,Integer>();
+        Sheet nonEmptySheet = Ods.getNonEmptySheet(sheets, nonEmptySheets, numColumns);
+//        Sheet nonEmptySheet = null;
+//
+//        for (Sheet sheet : sheets) {
+//            Range range = sheet.getDataRange();
+//            int totalRows = 0;
+//            int maxRows = 0;
+//            int rangeNumColumns = range.getNumColumns();
+//            int lastColumn = range.getLastColumn();
+//            int numRows = range.getNumRows();
+//            int lastRow = range.getLastRow();
+//            int numValues = range.getNumValues();
+//            //                             1002/1003 
+//    		LOG.info("Columns " + lastColumn +"/" +rangeNumColumns+ " , Rows " + lastRow +"/"+numRows + " in sheet " + sheet.getName() + " numValues="+numValues);
+////            LOG.info(range.toString()); // too long for print, MAX_PRINTABLE = 1024
+//    		
+//    		for (int c = 0; c < numColumns ; c++) {
+//        		range = sheet.getRange(0, c, numRows);
+//        		maxRows = Ods.getMaxRows(range);
+//        		if(maxRows>totalRows) totalRows = maxRows;
+//    		}
+//    		if(totalRows==0) {
+//        		LOG.info("empty sheet " + sheet.getName());
+//    		} else {
+//        		LOG.info("sheet " + sheet.getName() + " totalRows="+totalRows);
+//        		nonEmptySheet = sheet;
+//        		nonEmptySheets.put(nonEmptySheet.getName(), totalRows);
+//    		}
+//    	}
+        LOG.info("nonEmptySheets/sheets:"+nonEmptySheets.size()+"/"+sheets.size());
+//        int bankCodeColumn = COL_BLZ;
+        if(nonEmptySheets.size()==1) {
+        	// Range com.github.miachm.sods.Sheet.getRange(int row, int column, int numRows)
+        	// wozu der 3te Parameter?
+//        	Range range = nonEmptySheet.getRange(0, COL_BLZ, nonEmptySheets.get(nonEmptySheet.getName()));
+//        	LOG.info("range.getNumRows()="+range.getNumRows() + " range.getNumColumns()="+range.getNumColumns());
+        	
+        	Range range = nonEmptySheet.getRange(0, 0, 3649, numColumns); // Range goes out of bounds: (end_of_range: 18245, maxrows in sheet: 3649
+        	LOG.info("range.getNumRows()="+range.getNumRows() + " range.getNumColumns()="+range.getNumColumns());
+    		Object[][] values = range.getValues();
+    		// r==0 ist colname, daher start bei 1
+    		for (int r = 1; r < range.getNumRows(); r++) {
+    			Object blz = values[r][COL_BLZ]; // Double und nicht String
+    			Object id = values[r][COL_ID]; // Double und nicht Integer
+    			String sBlz = String.format("%08d", (int)(double)((Double)blz));
+    			int i = (int)(double)((Double)id);
+    			LOG.finer("r("+r+"):"+blz+" "+id + " ==> " + sBlz + ":"+i);
+    			deBLZtoID.put(sBlz, i);
+//    			for (int c = 0; c < range.getNumColumns(); c++) {
+//    				Object v = values[r][c];
+//            		Object cellObect = range.getCell(r, c).getValue();
+//    				LOG.info("r("+r+"),c:"+c + " " + (v==null? "null" : v.getClass()) + " " + cellObect);
+//    			}
+    		}
+        }
+    }
+
     static final Character SORTCODE_LIKE = 's'; // example: BG64 UNCR 96601 010688021
     // ignore alpha bankCode, numeric branchCode, sort code Bsp GB IE 
     static Long s(String ignore, Object branchCode) {
@@ -127,6 +225,7 @@ public class BankId {
     
     // TODO commands.put('0', () -> System.out.println("numeric bankCode, nil branch, Bsp LU"
     static Long idFunc0(String bankC, Object branchC) {
+    	LOG.warning("TODO TODO TODO TODO TODO TODO "); //TODO 
     	return 999L; // TODO
     }
     
@@ -149,6 +248,7 @@ public class BankId {
     	idFunc.put(ALPHA_BANKCODE,                  (bankC, branchC) -> a(bankC, branchC));
     	idFunc.put(BANKCODE_AND_BRANCHCODE_NUMERIC, (bankC, branchC) -> b(bankC, branchC));
     	idFunc.put(NUMERIC_BANKCODE,                (bankC, branchC) -> n(bankC, branchC));
+    	idFunc.put(NUMERIC_BANKCODE_WITH_MAP,       (bankC, branchC) -> m(bankC, branchC));
     	idFunc.put(SORTCODE_LIKE,                   (bankC, branchC) -> s(bankC, branchC));
     	idFunc.put(BANKCODE_WITH_ZERO_BRANCHCODE,   (bankC, branchC) -> z(bankC, branchC));  	
     }
