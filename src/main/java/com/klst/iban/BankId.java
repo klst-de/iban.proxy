@@ -1,5 +1,6 @@
 package com.klst.iban;
 
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.List;
@@ -160,43 +161,11 @@ public class BankId {
 
         Map<String,Integer> nonEmptySheets = new Hashtable<String,Integer>();
         Sheet nonEmptySheet = Ods.getNonEmptySheet(sheets, nonEmptySheets, numColumns);
-//        Sheet nonEmptySheet = null;
-//
-//        for (Sheet sheet : sheets) {
-//            Range range = sheet.getDataRange();
-//            int totalRows = 0;
-//            int maxRows = 0;
-//            int rangeNumColumns = range.getNumColumns();
-//            int lastColumn = range.getLastColumn();
-//            int numRows = range.getNumRows();
-//            int lastRow = range.getLastRow();
-//            int numValues = range.getNumValues();
-//            //                             1002/1003 
-//    		LOG.info("Columns " + lastColumn +"/" +rangeNumColumns+ " , Rows " + lastRow +"/"+numRows + " in sheet " + sheet.getName() + " numValues="+numValues);
-////            LOG.info(range.toString()); // too long for print, MAX_PRINTABLE = 1024
-//    		
-//    		for (int c = 0; c < numColumns ; c++) {
-//        		range = sheet.getRange(0, c, numRows);
-//        		maxRows = Ods.getMaxRows(range);
-//        		if(maxRows>totalRows) totalRows = maxRows;
-//    		}
-//    		if(totalRows==0) {
-//        		LOG.info("empty sheet " + sheet.getName());
-//    		} else {
-//        		LOG.info("sheet " + sheet.getName() + " totalRows="+totalRows);
-//        		nonEmptySheet = sheet;
-//        		nonEmptySheets.put(nonEmptySheet.getName(), totalRows);
-//    		}
-//    	}
-        LOG.info("nonEmptySheets/sheets:"+nonEmptySheets.size()+"/"+sheets.size());
-//        int bankCodeColumn = COL_BLZ;
+        LOG.info("file "+DE_ODS_RESOURCE+" has nonEmptySheets/sheets:"+nonEmptySheets.size()+"/"+sheets.size());
         if(nonEmptySheets.size()==1) {
-        	// Range com.github.miachm.sods.Sheet.getRange(int row, int column, int numRows)
-        	// wozu der 3te Parameter?
-//        	Range range = nonEmptySheet.getRange(0, COL_BLZ, nonEmptySheets.get(nonEmptySheet.getName()));
-//        	LOG.info("range.getNumRows()="+range.getNumRows() + " range.getNumColumns()="+range.getNumColumns());
-        	
-        	Range range = nonEmptySheet.getRange(0, 0, 3649, numColumns); // Range goes out of bounds: (end_of_range: 18245, maxrows in sheet: 3649
+        	Collection<Integer> collection = nonEmptySheets.values();
+        	int numRows = collection.iterator().next();
+        	Range range = nonEmptySheet.getRange(0, 0, numRows, numColumns);
         	LOG.info("range.getNumRows()="+range.getNumRows() + " range.getNumColumns()="+range.getNumColumns());
     		Object[][] values = range.getValues();
     		// r==0 ist colname, daher start bei 1
@@ -205,13 +174,13 @@ public class BankId {
     			Object id = values[r][COL_ID]; // Double und nicht Integer
     			String sBlz = String.format("%08d", (int)(double)((Double)blz));
     			int i = (int)(double)((Double)id);
-    			LOG.finer("r("+r+"):"+blz+" "+id + " ==> " + sBlz + ":"+i);
-    			deBLZtoID.put(sBlz, i);
 //    			for (int c = 0; c < range.getNumColumns(); c++) {
 //    				Object v = values[r][c];
 //            		Object cellObect = range.getCell(r, c).getValue();
 //    				LOG.info("r("+r+"),c:"+c + " " + (v==null? "null" : v.getClass()) + " " + cellObect);
 //    			}
+    			LOG.finer("r("+r+"):"+blz+" "+id + " ==> " + sBlz + ":"+i);
+    			deBLZtoID.put(sBlz, i);
     		}
         }
     }
