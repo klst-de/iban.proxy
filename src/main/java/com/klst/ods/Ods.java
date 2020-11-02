@@ -73,4 +73,27 @@ public class Ods {
     	}
     	return nonEmptySheet;
     }
+    
+/*
+
+dokumentiert ist es ( Range.getValues() ) so:
+	The (cell)values could be String, Float, Integer, OfficeCurrency, OfficePercentage or 
+	a DateEmpty cells returns a null object
+	
+Aber numerische Werte werden als Double gespeichert
+ */
+    public static Integer getInteger(Object cellValue) {
+		Integer integer = null;
+		if(cellValue instanceof String) {
+			try {
+				integer = Integer.parseInt((String)cellValue);
+			} catch (NumberFormatException e) {
+			}
+		}
+		if(cellValue instanceof Double) {
+//			TODO check: MIN_VALUE <= res <= MAX_VALUE
+			integer = (int)(double)((Double)cellValue);
+		}
+		return integer;
+    }
 }
