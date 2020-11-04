@@ -74,6 +74,10 @@ public class BankId {
     	countryToFunc.put("SK", NUMERIC_BANKCODE);
     	countryToFunc.put("SM", BANKCODE_AND_BRANCHCODE_NUMERIC);
     	countryToFunc.put("VA", NUMERIC_BANKCODE);
+    	// non sepa countries
+    	countryToFunc.put("ME", NUMERIC_BANKCODE);
+    	countryToFunc.put("MK", NUMERIC_BANKCODE);
+    	countryToFunc.put("SA", NUMERIC_BANKCODE);
 	}
 
 	public static BankId getInstance() {
