@@ -13,11 +13,8 @@ public class LocalFileProxy extends FileProxy {
 	public static final String RESOURCE_DATA_PATH = "data/";
 	static final String RESOURCE_PATH = RESOURCE_DATA_PATH + "iban-countries/";
 
-	// TODO
-	
-	public String loadFile(String countryCode) {
-		File file = new File(RESOURCE_PATH+countryCode+".json");
-        BufferedReader in;
+	public static String loadFile(File file) {
+        BufferedReader in = null;
 		if(file.exists()) {
 			LOG.info(file.getAbsolutePath() + " exists.");
 			// laden in Map<Long, JSONObject> countryBanks :: mit key = id
@@ -36,10 +33,25 @@ public class LocalFileProxy extends FileProxy {
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
+//			} finally {
+//				in.close();
 			}
 	        String jsonString = response.toString();
-	        LOG.info("response:\n"+jsonString.length()+"<");
+	        LOG.config("jsonString.length is "+jsonString.length());
 	        return jsonString;
+		} else {
+			LOG.warning("Not exists file:"+file.getAbsolutePath()+".");
+	        return null;
+		}
+		
+	}
+	
+	// TODO
+	
+	public String loadFile(String countryCode) {
+		File file = new File(RESOURCE_PATH+countryCode+".json");
+		if(file.exists()) {
+			return loadFile(file);
 		} else {
 			LOG.warning("No proxy provider for "+countryCode+" exists in "+RESOURCE_PATH+".");
 	        return null;
