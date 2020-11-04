@@ -8,6 +8,7 @@ import java.util.logging.Logger;
 
 import com.github.miachm.sods.Range;
 import com.github.miachm.sods.Sheet;
+import com.github.miachm.sods.SodsException;
 import com.github.miachm.sods.SpreadSheet;
 
 public class Ods {
@@ -18,9 +19,14 @@ public class Ods {
         SpreadSheet spreadSheet = null;
 		try {
 			spreadSheet = new SpreadSheet(new File(odsFilePath));
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
+		} catch (SodsException e) {
+			LOG.severe(e.getMessage() + " - file:"+odsFilePath);
 			e.printStackTrace();
+		} catch (IOException e) {
+			LOG.severe(e.getMessage() + " - file:"+odsFilePath);
+			e.printStackTrace();
+		} finally {
+			if(spreadSheet==null) return null;
 		}
 		LOG.info("Number of sheets: " + spreadSheet.getNumSheets());
         List<Sheet> sheets = spreadSheet.getSheets();
