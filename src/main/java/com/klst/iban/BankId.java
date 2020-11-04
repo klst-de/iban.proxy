@@ -74,10 +74,19 @@ public class BankId {
     	countryToFunc.put("SK", NUMERIC_BANKCODE);
     	countryToFunc.put("SM", BANKCODE_AND_BRANCHCODE_NUMERIC);
     	countryToFunc.put("VA", NUMERIC_BANKCODE);
-    	// non sepa countries
+    	// non sepa countries TODO:
+    	countryToFunc.put("AE", NUMERIC_BANKCODE);
+    	countryToFunc.put("CR", NUMERIC_BANKCODE);
+//    	countryToFunc.put("FO", NUMERIC_BANKCODE); // alle IBAN mit FO* siend DK-Banken
+//    	countryToFunc.put("GL", NUMERIC_BANKCODE); // alle IBAN mit GL* siend DK-Banken
+    	countryToFunc.put("KZ", NUMERIC_BANKCODE);
+    	countryToFunc.put("LB", NUMERIC_BANKCODE);
     	countryToFunc.put("ME", NUMERIC_BANKCODE);
     	countryToFunc.put("MK", NUMERIC_BANKCODE);
+//    	countryToFunc.put("RS", NUMERIC_BANKCODE); // 3!n + 3 aus BIC, wie LU
     	countryToFunc.put("SA", NUMERIC_BANKCODE);
+    	countryToFunc.put("TL", NUMERIC_BANKCODE);
+//    	countryToFunc.put("XK", BANKCODE_AND_BRANCHCODE XXX); // wie AD!!! : für bankCode=X liefert branchCode=0 dasselbe wie branchCode=99
 	}
 
 	public static BankId getInstance() {
