@@ -70,8 +70,7 @@ public class IBANTest {
         assertEquals(5428, iban.getBankData().getBankCode());
         assertEquals("11101", iban.getBankData().getBranchCode());
         assertEquals("0542811101", iban.getBankDataPart());
-        
-        
+              
         iban = new InternationalBankAccountNumber("GR1601101250000000012300695");
         assertEquals("GR", iban.getCountryCode());
         assertEquals("16", iban.getCheckDigits());
@@ -80,6 +79,15 @@ public class IBANTest {
         assertEquals(11, iban.getBankData().getBankCode());
         assertEquals("0125", iban.getBankData().getBranchCode());
         assertEquals("0110125", iban.getBankDataPart());
+        
+		iban = new InternationalBankAccountNumber("DE79701500000111153375");
+		assertEquals("DE", iban.getCountryCode());
+		assertEquals("79", iban.getCheckDigits());
+		assertEquals("701500000111153375", iban.getBbanPart());
+		assertEquals("70150000", iban.getBankData().getBankIdentifier());
+		assertEquals(70150000, iban.getBankData().getBankCode());
+		assertNull(iban.getBankData().getBranchCode());
+		assertEquals("70150000", iban.getBankDataPart());
         
    }
 
