@@ -17,7 +17,6 @@ public class InternationalBankAccountNumber {
 	
 	String iban = null;
 	boolean isValid = false;
-//	String format = null;
 	
 	public InternationalBankAccountNumber(String iban) {
 		if(iban!=null) {
@@ -64,4 +63,9 @@ public class InternationalBankAccountNumber {
 //		LOG.info(bData.getBankData(iban).toString());
 		return bData.getBankData(iban);
     }
+    
+    public String toString() {
+    	return iban;
+    }
+
 }
