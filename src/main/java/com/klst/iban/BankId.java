@@ -47,7 +47,7 @@ public class BankId {
     	countryToFunc.put("DE", NUMERIC_BANKCODE_WITH_MAP);
     	countryToFunc.put("DK", NUMERIC_BANKCODE);
     	countryToFunc.put("EE", NUMERIC_BANKCODE);
-    	countryToFunc.put("ES", BANKCODE_AND_BRANCHCODE_NUMERIC);
+    	countryToFunc.put("ES", BANKCODE_AND_IGNORED_BRANCHCODE);
     	countryToFunc.put("FI", NUMERIC_BANKCODE);
     	countryToFunc.put("FR", BANKCODE_AND_BRANCHCODE_NUMERIC);
     	countryToFunc.put("GB", SORTCODE_LIKE);
@@ -132,6 +132,12 @@ public class BankId {
     static Long b(String bankCode, Object branchCode) {
     	String bankDataPart = new String(bankCode + branchCode.toString());
     	return Long.parseLong(bankDataPart, 10);
+    }
+
+    static final Character BANKCODE_AND_IGNORED_BRANCHCODE = 'i'; // example: ES91 2100 0418 450200051332
+    static Long i(String bankCode, Object branchCode) {
+    	// branchC wird ignoriert, da alle Werte akzeptiont werden
+    	return Long.parseLong(bankCode, 10);
     }
 
     static final Character NUMERIC_BANKCODE = 'n'; // example: AT57 20111 40014400144
@@ -229,6 +235,7 @@ public class BankId {
     static {  	
     	idFunc.put(ALPHA_BANKCODE,                  (bankC, branchC) -> a(bankC, branchC));
     	idFunc.put(BANKCODE_AND_BRANCHCODE_NUMERIC, (bankC, branchC) -> b(bankC, branchC));
+    	idFunc.put(BANKCODE_AND_IGNORED_BRANCHCODE, (bankC, branchC) -> i(bankC, branchC));  	
     	idFunc.put(NUMERIC_BANKCODE,                (bankC, branchC) -> n(bankC, branchC));
     	idFunc.put(NUMERIC_BANKCODE_WITH_MAP,       (bankC, branchC) -> m(bankC, branchC));
     	idFunc.put(SORTCODE_LIKE,                   (bankC, branchC) -> s(bankC, branchC));
