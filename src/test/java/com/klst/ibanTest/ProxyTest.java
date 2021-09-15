@@ -20,6 +20,8 @@ import com.klst.iban.BankId;
 import com.klst.iban.IbanToBankProxy;
 import com.klst.iban.InternationalBankAccountNumber;
 import com.klst.iban.Result.BankData;
+import com.klst.iban.datastore.DatabaseProxy;
+import com.klst.iban.datastore.SqlInstance;
 
 public class ProxyTest {
 
@@ -55,6 +57,7 @@ public class ProxyTest {
     private static final String VALID_AD_IBAN = "AD8600040019000140145012"; // num bankCode + branchCode, id = 40019
     // BG ibans see http://en-m.redcross.bg/help_us/how_to_help/bank_donation
     private static final String VALID_BG_IBAN = "BG64UNCR96601010688021"; // alpha bankCode property + branchCode 
+    private static final String VALID_DE_IBAN = "DE98370205000005023453"; // num bankCode BIC: BFSWDE33XXX  
     private static final String VALID_NL_IBAN = "NL91ABNA0417164300"; // alpha bankCode property 
     
     @Test
@@ -159,6 +162,27 @@ public class ProxyTest {
     	assertEquals(0, bankData.getBankCode());
     }
     
+//  @Test
+	public void mt() {
+		IbanToBankProxy proxy = new IbanToBankProxy();
+		String VALID_IBAN = "MT84MALT011000012345MTLCAST001S";
+		BankData bankData = proxy.getBankData(VALID_IBAN);
+		assertNotNull(bankData);
+		LOG.info("MT bankData:" + bankData);
+	}
+
+	@Test
+	public void dbProxyTest() {
+//		DatabaseProxy hsql = new DatabaseProxy(new SqlInstance(DatabaseProxy.HSQLDB_DATASTORE, SqlInstance.HSQLDB_18_DRIVER));
+		DatabaseProxy pg = new DatabaseProxy(new SqlInstance(DatabaseProxy.POSTGRESQL_DATASTORE, API_Key_Provider.POSTGRESQL_USER, API_Key_Provider.POSTGRESQL_PW, SqlInstance.POSTGRESQL_DRIVER));
+		pg.logSchemas();
+//		hsql.logSchemas();
+//		hsql.createTable("test");
+//		hsql.deleteFrom("test");
+//		pg.createTable("test_bankdata");
+//		pg.deleteFrom("test_bankdata");
+	}
+
     @Test
     public void noApiKey() {
     	IbanToBankProxy proxy = new IbanToBankProxy();
@@ -183,9 +207,28 @@ public class ProxyTest {
 //    	assertEquals(15, bankData.getBankSupports());
 ////    	assertNull(proxy.getBankData("AT611904300234573201"));
     	
-    	bankData = proxy.getBankData(VALID_NL_IBAN); // warn
+    	bankData = proxy.getBankData(VALID_DE_IBAN);
     	assertNotNull(bankData);
+    	LOG.info("bankData:"+bankData);
+    	LOG.info("BFSWDE33XXX:"+bankData.getBic());
+    	
+    	bankData = proxy.getBankData("DE79701500000111153375");
+    	assertNotNull(bankData);
+    	LOG.info("bankData:"+bankData);
+    	LOG.info("SSKMDEMMXXX:"+bankData.getBic());
+
+    	InternationalBankAccountNumber iban = new InternationalBankAccountNumber(VALID_NL_IBAN);
+    	bankData = proxy.getBankData(iban.toString()); // warn
+    	assertNotNull(bankData);
+    	LOG.info("bankData:"+bankData);
     	assertEquals("ABNA", bankData.getBankIdentifier()); // "id":   8814
+    	try {
+    		Long id = BankId.getBankId(iban.getCountryCode(), iban.getBankData().getBankIdentifier(), iban.getBankData().getBranchCode());
+    		assertEquals(8814, id);
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
     	assertEquals(15, bankData.getBankSupports());
     }
 

@@ -3,6 +3,7 @@ package com.klst.iban.datastore;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
+import java.util.Properties;
 
 /*
 groovy:
@@ -34,12 +35,20 @@ public class SqlInstance {
 
 	public static final String POSTGRESQL_DRIVER = "org.postgresql.Driver";
 
+	private static Properties info(String user, String password) {
+        Properties info = new java.util.Properties();
+        if (user != null) {
+            info.put("user", user);
+        }
+        if (password != null) {
+            info.put("password", password);
+        }
+        return info;
+	}
+
 	Connection connection;
 
-	public SqlInstance(String url, String driver) {
-		this(url, null, null, driver);
-	}
-	public SqlInstance(String url, String user, String password, String driver) {
+	public SqlInstance(String url, Properties info, String driver) {
 		try {
 			Class.forName(driver);
 		} catch (Exception e) {
@@ -47,19 +56,20 @@ public class SqlInstance {
 			e.printStackTrace();
 			return;
 		}
-
+		
 		connection = null;
-//		static Connection getConnection(String url, java.util.Properties info)
 		try {
-			if(user==null) {
-				connection = DriverManager.getConnection(url);
-			} else {
-				connection = DriverManager.getConnection(url, user, password);
-			}
+			connection = DriverManager.getConnection(url, info);
 		} catch (SQLException e) {
-			System.err.println("ERROR: failed to get connection to "+url+(user==null ? "." : (" with user "+user)));
+			System.err.println("ERROR: failed to get connection to "+url+(info==null ? "." : (" with properties "+info)));
 			e.printStackTrace();
 			return;
 		}
+	}
+	public SqlInstance(String url, String user, String password, String driver) {
+        this(url, info(user, password), driver);
+	}
+	public SqlInstance(String url, String driver) {
+		this(url, null, null, driver);
 	}
 }
