@@ -21,8 +21,8 @@ class Bankdata extends Script {
 	// ADempiere:
 	static final SUPER_USER_ID = 100
 	static final SYSTEM_CLIENT_ID = 0
-//	static final db = [url:DatabaseProxy.H2_DATASTORE, user:'SA', password:'', driver:SqlInstance.H2_DRIVER]
-	static final db = [url:DatabaseProxy.POSTGRESQL_DATASTORE, user:"adempiere", password:"??", driver:SqlInstance.POSTGRESQL_DRIVER]
+	static final db = [url:DatabaseProxy.H2_DATASTORE, user:'SA', password:'', driver:SqlInstance.H2_DRIVER]
+//	static final db = [url:DatabaseProxy.POSTGRESQL_DATASTORE, user:"adempiere", password:"??", driver:SqlInstance.POSTGRESQL_DRIVER]
 	def CLASSNAME = this.getClass().getName()
 	Sql sqlInstance
 	
@@ -163,11 +163,11 @@ bank_code müsste demnach in zwei Spalten gemapped werden:
 		println "${CLASSNAME}:countryLoad colkeys:${colkeys}"
 		List oList = object.list
 		oList.each { bank ->
-			println "${CLASSNAME}:countryLoad ${bank}"
+//	uncomment to log bank record to be inserted into db	
+//			println "${CLASSNAME}:countryLoad ${bank}"
 			data = [:]
 			cols.each {
 				def name = it.key // name des json objekts
-//				println "${CLASSNAME}:countryLoad name des json objekts:${name}"
 				def dbcol = it.value.get(0) // name der db spalte zum json objekt
 				if(name=='country_code') {
 					data.put(name, "'"+object.country_code+"'") // immer '<country_code>'
@@ -179,7 +179,6 @@ bank_code müsste demnach in zwei Spalten gemapped werden:
 				} else if(name=='id' || name=='support_codes') {
 					data.put(name, bank.get(name))
 				} else {
-//					def str = bank.get(name).replace("'","''"); // wg 'Côte d'Ivoire'
 					def str = bank.get(name).toString()
 					data.put(name, (str.length()==0 ? null : "'"+str.replace("'","''")+"'"))
 				}
@@ -201,7 +200,7 @@ VALUES ( ${values} )
 		def fromsql = """
 SELECT SUBSTRING(swift_code,5,2) as cc , COUNT(*) as count FROM ${from}
 WHERE country_code=?
-GROUP BY 1
+GROUP BY SUBSTRING(swift_code,5,2)
 """
 		sqlInstance.eachRow(fromsql,[countryCode]) { fromrow ->
 			println "${CLASSNAME}:countBicCountry ${fromrow}"
@@ -303,20 +302,55 @@ Auch in CH.json gibt es viele Institute mit anderen Ländercode als CH.
 			loadOrInitialLoad("AD")
 			loadOrInitialLoad("AE")
 			loadOrInitialLoad("AT")
+//com.klst.merge.Bankdata:countBicCountry [CC:AT, COUNT:874]
+//com.klst.merge.Bankdata:countBicCountry [CC:DE, COUNT:2]
 			loadOrInitialLoad("BE")
+//com.klst.merge.Bankdata:countBicCountry [CC:BE, COUNT:845]
+//com.klst.merge.Bankdata:countBicCountry [CC:FR, COUNT:1]
+//com.klst.merge.Bankdata:countBicCountry [CC:LU, COUNT:1]
 			loadOrInitialLoad("BG")
 			loadOrInitialLoad("CH")
+//com.klst.merge.Bankdata:countBicCountry [CC:AT, COUNT:21]
+//com.klst.merge.Bankdata:countBicCountry [CC:CH, COUNT:1587]
+//com.klst.merge.Bankdata:countBicCountry [CC:DE, COUNT:26]
+//com.klst.merge.Bankdata:countBicCountry [CC:DK, COUNT:1]
+//com.klst.merge.Bankdata:countBicCountry [CC:FI, COUNT:1]
+//com.klst.merge.Bankdata:countBicCountry [CC:GB, COUNT:15]
+//com.klst.merge.Bankdata:countBicCountry [CC:GR, COUNT:1]
+//com.klst.merge.Bankdata:countBicCountry [CC:IT, COUNT:1]
+//com.klst.merge.Bankdata:countBicCountry [CC:LI, COUNT:24]
+//com.klst.merge.Bankdata:countBicCountry [CC:LT, COUNT:1]
+//com.klst.merge.Bankdata:countBicCountry [CC:LU, COUNT:8]
+//com.klst.merge.Bankdata:countBicCountry [CC:NL, COUNT:5]
+//com.klst.merge.Bankdata:countBicCountry [CC:SE, COUNT:1]
+//com.klst.merge.Bankdata:countBicCountry [CC:US, COUNT:1]
 			loadOrInitialLoad("CR")
 			loadOrInitialLoad("CZ")
 			loadOrInitialLoad("DE")
 			loadOrInitialLoad("DK")
+//com.klst.merge.Bankdata:countBicCountry [CC:DK, COUNT:3883]
+//com.klst.merge.Bankdata:countBicCountry [CC:FO, COUNT:4]
+//com.klst.merge.Bankdata:countBicCountry [CC:GL, COUNT:3]
 			loadOrInitialLoad("EE")
 			loadOrInitialLoad("ES")
 			loadOrInitialLoad("FI")
 			loadOrInitialLoad("FR")
+//com.klst.merge.Bankdata:countBicCountry [CC:FR, COUNT:569]
+//com.klst.merge.Bankdata:countBicCountry [CC:GB, COUNT:1]
+//com.klst.merge.Bankdata:countBicCountry [CC:GF, COUNT:1]
+//com.klst.merge.Bankdata:countBicCountry [CC:GP, COUNT:9]
+//com.klst.merge.Bankdata:countBicCountry [CC:LU, COUNT:1]
+//com.klst.merge.Bankdata:countBicCountry [CC:MQ, COUNT:4]
+//com.klst.merge.Bankdata:countBicCountry [CC:NC, COUNT:9]
+//com.klst.merge.Bankdata:countBicCountry [CC:PF, COUNT:6]
+//com.klst.merge.Bankdata:countBicCountry [CC:PM, COUNT:2]
+//com.klst.merge.Bankdata:countBicCountry [CC:RE, COUNT:7]
+//com.klst.merge.Bankdata:countBicCountry [CC:WF, COUNT:1]
 			loadOrInitialLoad("GR")
 			loadOrInitialLoad("HR")
 			loadOrInitialLoad("IE")
+//com.klst.merge.Bankdata:countBicCountry [CC:GB, COUNT:613]
+//com.klst.merge.Bankdata:countBicCountry [CC:IE, COUNT:1505]
 			loadOrInitialLoad("IS")
 			loadOrInitialLoad("IT")
 //com.klst.merge.Bankdata:countBicCountry [cc:CH, count:1]
@@ -339,6 +373,8 @@ Auch in CH.json gibt es viele Institute mit anderen Ländercode als CH.
 			loadOrInitialLoad("NL")
 			loadOrInitialLoad("NO")
 			loadOrInitialLoad("PL") // #38 bzw.#25 ohne BIC
+//com.klst.merge.Bankdata:countBicCountry [CC:[null], COUNT:25]
+//com.klst.merge.Bankdata:countBicCountry [CC:PL, COUNT:3109]
 			loadOrInitialLoad("RS")
 			loadOrInitialLoad("SA")
 			loadOrInitialLoad("SE")
