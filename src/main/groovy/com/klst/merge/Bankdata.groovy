@@ -10,9 +10,13 @@ import java.sql.SQLException
 import com.klst.iban.datastore.DatabaseProxy
 import com.klst.iban.datastore.SqlInstance
 
+/**
+	load bankdata in database 
+ */
 class Bankdata extends Script {
 
 	static final URL_PREFIX = 'https://raw.githubusercontent.com/homebeaver/bankdata/main/iban-countries/'
+	static final JSON_EXT = ".json"
 	static final TABLENAME = "bankdata"
 	// ADempiere:
 	static final SUPER_USER_ID = 100
@@ -193,9 +197,22 @@ VALUES ( ${values} )
 		return object.list.size()
 	}
 	
+	Integer countBicCountry(String countryCode, from=TABLENAME) {
+		def fromsql = """
+SELECT SUBSTRING(swift_code,5,2) as cc , COUNT(*) as count FROM ${from}
+WHERE country_code=?
+GROUP BY 1
+"""
+		sqlInstance.eachRow(fromsql,[countryCode]) { fromrow ->
+			println "${CLASSNAME}:countBicCountry ${fromrow}"
+			def count = fromrow.count
+		}
+	}
+ 
 	def jsonString = new StringBuilder()
 	// see https://stackoverflow.com/questions/11863474/how-to-read-text-file-from-remote-system-and-then-write-it-into-array-of-string
-	def	populate = { filename , charsetName="UTF-8" ->
+	def	populate = { countryCode , charsetName="UTF-8" ->
+		def filename = countryCode+JSON_EXT
 		println "${CLASSNAME}:populate from ${filename}"
 		File file = new File("../iban.proxy/data/iban-countries/"+filename)
 		BufferedReader reader = null
@@ -214,6 +231,9 @@ VALUES ( ${values} )
 			done = done+1
 		}
 		int inserted = countryLoad(this.jsonString.toString())
+		if(inserted>0) {
+		    countBicCountry(countryCode)	   
+		}
 		println "${CLASSNAME}:populate done ${done} lines, ${inserted} inserted recs."
 	}
 
@@ -230,16 +250,14 @@ DELETE FROM ${tablename} WHERE country_code = '${countryCode}'
 	
 	void initialLoad(String countryCode) {
 		sqlInstance.connection.autoCommit = false
-		populate( countryCode+".json" )
+		populate( countryCode )
 		sqlInstance.commit()
 	}
 	
 	void deleteAndLoad(String countryCode) {
 		deletefrom(countryCode)
-		
-		def datafile = countryCode+".json"
 		sqlInstance.connection.autoCommit = false
-		populate( datafile )
+		populate( countryCode )
 		sqlInstance.commit()
 	}
 
@@ -254,8 +272,7 @@ SQL zu Beispiel GL und FO (Färöer):
 select * from bankdata where country_code='DK' and substring(swift_code,5,2)<>country_code -- wg. GL und FO :#7
 Auch in CH.json gibt es viele Institute mit anderen Ländercode als CH.
  */	
-	void loadOrInitialLoad(countryCode, createTableAndInitialLoad=false) {
-		
+	void loadOrInitialLoad(countryCode, createTableAndInitialLoad=false) {	
 		try {
 			deleteAndLoad(countryCode)
 		} catch(SQLException ex) {
@@ -283,20 +300,55 @@ Auch in CH.json gibt es viele Institute mit anderen Ländercode als CH.
 		println "${CLASSNAME}:run sqlInstance:${this.sqlInstance}"
 		if(this.sqlInstance) {
 			println "${CLASSNAME}:run Connection:${this.sqlInstance.getConnection()}"
-//			loadOrInitialLoad("AD")
-//			loadOrInitialLoad("AE")
-//			loadOrInitialLoad("AT")
-//			loadOrInitialLoad("BE")
-//			loadOrInitialLoad("BG")
-//			loadOrInitialLoad("CH")
-//			loadOrInitialLoad("CR")
-//			loadOrInitialLoad("CZ")
-//			loadOrInitialLoad("DE")
-//			loadOrInitialLoad("DK")
-//			loadOrInitialLoad("EE")
-//			loadOrInitialLoad("ES")
-//			loadOrInitialLoad("FI")
+			loadOrInitialLoad("AD")
+			loadOrInitialLoad("AE")
+			loadOrInitialLoad("AT")
+			loadOrInitialLoad("BE")
+			loadOrInitialLoad("BG")
+			loadOrInitialLoad("CH")
+			loadOrInitialLoad("CR")
+			loadOrInitialLoad("CZ")
+			loadOrInitialLoad("DE")
+			loadOrInitialLoad("DK")
+			loadOrInitialLoad("EE")
+			loadOrInitialLoad("ES")
+			loadOrInitialLoad("FI")
 			loadOrInitialLoad("FR")
+			loadOrInitialLoad("GR")
+			loadOrInitialLoad("HR")
+			loadOrInitialLoad("IE")
+			loadOrInitialLoad("IS")
+			loadOrInitialLoad("IT")
+//com.klst.merge.Bankdata:countBicCountry [cc:CH, count:1]
+//com.klst.merge.Bankdata:countBicCountry [cc:CZ, count:1]
+//com.klst.merge.Bankdata:countBicCountry [cc:DE, count:3]
+//com.klst.merge.Bankdata:countBicCountry [cc:FR, count:1]
+//com.klst.merge.Bankdata:countBicCountry [cc:GB, count:1]
+//com.klst.merge.Bankdata:countBicCountry [cc:IT, count:835]
+//com.klst.merge.Bankdata:countBicCountry [cc:SM, count:10]
+			loadOrInitialLoad("KZ")
+//com.klst.merge.Bankdata:countBicCountry [cc:KZ, count:43]
+//com.klst.merge.Bankdata:countBicCountry [cc:RU, count:2]
+			loadOrInitialLoad("LB")
+			loadOrInitialLoad("LI")
+			loadOrInitialLoad("LT")
+			loadOrInitialLoad("LU")
+			loadOrInitialLoad("LV")
+			loadOrInitialLoad("MC")
+			loadOrInitialLoad("MT")
+			loadOrInitialLoad("NL")
+			loadOrInitialLoad("NO")
+			loadOrInitialLoad("PL") // #38 bzw.#25 ohne BIC
+			loadOrInitialLoad("RS")
+			loadOrInitialLoad("SA")
+			loadOrInitialLoad("SE")
+			loadOrInitialLoad("SI")
+			loadOrInitialLoad("SK")
+//com.klst.merge.Bankdata:countBicCountry [cc:CZ, count:3]
+//com.klst.merge.Bankdata:countBicCountry [cc:SK, count:33]
+			loadOrInitialLoad("SM")
+			loadOrInitialLoad("VA")
+			loadOrInitialLoad("XK")
 		}
 		
 		return this;
